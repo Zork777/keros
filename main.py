@@ -2,6 +2,8 @@ from tensorflow.python.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import Conv2D, MaxPooling2D
 from tensorflow.python.keras.layers import Activation, Dropout, Flatten, Dense
+from tensorflow.keras.callbacks import ModelCheckpoint
+#from keras.models import model_from_json
 
 # Каталог с данными для обучения
 train_dir = 'D:\\work\\ATM_foto\\train'
@@ -10,7 +12,7 @@ val_dir = 'D:\\work\\ATM_foto\\val'
 # Каталог с данными для тестирования
 test_dir = 'D:\\work\\ATM_foto\\test'
 # Размеры изображения
-img_width, img_height = 150, 150
+img_width, img_height = 250, 250
 # Размерность тензора на основе изображения для входных данных в нейронную сеть
 # backend Tensorflow, channels_last
 input_shape = (img_width, img_height, 3)
@@ -51,8 +53,13 @@ model.add(Conv2D(64, (3, 3)))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
+model.add(Conv2D(64, (3, 3)))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+
+
 model.add(Flatten())
-model.add(Dense(64))
+model.add(Dense(128)) #64
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 model.add(Dense(1))
@@ -86,13 +93,21 @@ test_generator = datagen.flow_from_directory(
     batch_size=batch_size,
     class_mode='binary')
 
+# Сохраняем сеть на каждой эпохе
+# {epoch:02d} - номер эпохи
+# {val_acc:.4f} - значение аккуратности на проверочном ноборе данных
+# callbacks = [ModelCheckpoint('save/mnist-dense-{epoch:02d}-{val_acc:.4f}.hdf5')]
+# Сохраняем только лучший вариант сети
+callbacks = [ModelCheckpoint('save\\mnist-dense-{epoch:02d}-{val_acc:.4f}.hdf5', monitor='val_loss', save_best_only=True)]
+
 print ("Обучаем модель с использованием генераторов")
 model.fit_generator(
     train_generator,
     steps_per_epoch=nb_train_samples // batch_size,
     epochs=epochs,
     validation_data=val_generator,
-    validation_steps=nb_validation_samples // batch_size)
+    validation_steps=nb_validation_samples // batch_size,
+    callbacks=callbacks)
 
 scores = model.evaluate_generator(test_generator, nb_test_samples // batch_size)
 print("Аккуратность на тестовых данных: %.2f%%" % (scores[1]*100))
