@@ -12,7 +12,7 @@ val_dir = 'D:\\work\\ATM_foto\\val'
 # Каталог с данными для тестирования
 test_dir = 'D:\\work\\ATM_foto\\test'
 # Размеры изображения
-img_width, img_height = 150, 150
+img_width, img_height = 200, 200
 # Размерность тензора на основе изображения для входных данных в нейронную сеть
 # backend Tensorflow, channels_last
 input_shape = (img_width, img_height, 3)
