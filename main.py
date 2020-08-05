@@ -3,6 +3,8 @@ from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import Conv2D, MaxPooling2D
 from tensorflow.python.keras.layers import Activation, Dropout, Flatten, Dense
 from tensorflow.keras.callbacks import ModelCheckpoint
+
+
 #from keras.models import model_from_json
 
 # Каталог с данными для обучения
@@ -19,7 +21,7 @@ input_shape = (img_width, img_height, 3)
 # Количество эпох
 epochs = 30
 # Размер мини-выборки
-batch_size = 16
+batch_size = 32#16
 # Количество изображений для обучения
 nb_train_samples = 4291
 # Количество изображений для проверки
@@ -53,13 +55,13 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
 #model.add(Activation('relu'))
 #model.add(MaxPooling2D(pool_size=(2, 2)))
 
-model.add(Conv2D(128, (3, 3))) #128
+model.add(Conv2D(64, (3, 3))) #128
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
 
 model.add(Flatten())
-model.add(Dense(128)) #128
+model.add(Dense(64)) #128
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 model.add(Dense(1))
