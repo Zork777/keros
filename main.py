@@ -14,7 +14,7 @@ val_dir = 'D:\\work\\ATM_foto\\val'
 # Каталог с данными для тестирования
 test_dir = 'D:\\work\\ATM_foto\\test'
 # Размеры изображения
-img_width, img_height = 300, 300
+img_width, img_height = 150, 150
 # Размерность тензора на основе изображения для входных данных в нейронную сеть
 # backend Tensorflow, channels_last
 input_shape = (img_width, img_height, 3)
@@ -51,9 +51,6 @@ model.add(Conv2D(32, (3, 3)))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
-#model.add(Conv2D(64, (3, 3)))
-#model.add(Activation('relu'))
-#model.add(MaxPooling2D(pool_size=(2, 2)))
 
 model.add(Conv2D(64, (3, 3))) #128
 model.add(Activation('relu'))
@@ -69,10 +66,10 @@ model.add(Activation('sigmoid'))
 
 print ("Компилируем нейронную сеть")
 model.compile(loss='binary_crossentropy',
-              optimizer='adam', #adamax
+              optimizer='adamax', #adamax
               metrics=['accuracy'])
 
-datagen = ImageDataGenerator(rescale=1. / 255)
+datagen = ImageDataGenerator(rescale=1. / 255, brightness_range=[0.2,1.0], rotation_range=90, zoom_range=[0.5,1.0])
 
 print ("Генератор данных для обучения на основе изображений из каталога")
 train_generator = datagen.flow_from_directory(
