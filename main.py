@@ -14,14 +14,14 @@ val_dir = 'D:\\work\\ATM_foto\\val'
 # Каталог с данными для тестирования
 test_dir = 'D:\\work\\ATM_foto\\test'
 # Размеры изображения
-img_width, img_height = 150, 150
+img_width, img_height = 300, 300
 # Размерность тензора на основе изображения для входных данных в нейронную сеть
 # backend Tensorflow, channels_last
 input_shape = (img_width, img_height, 3)
 # Количество эпох
 epochs = 30
 # Размер мини-выборки
-batch_size = 32#16
+batch_size = 16#16
 # Количество изображений для обучения
 nb_train_samples = 4291
 # Количество изображений для проверки
@@ -69,7 +69,7 @@ model.add(Activation('sigmoid'))
 
 print ("Компилируем нейронную сеть")
 model.compile(loss='binary_crossentropy',
-              optimizer='adamax', #adam
+              optimizer='adam', #adamax
               metrics=['accuracy'])
 
 datagen = ImageDataGenerator(rescale=1. / 255)
