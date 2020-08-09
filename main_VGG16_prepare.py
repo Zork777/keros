@@ -6,7 +6,7 @@ from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import Conv2D, MaxPooling2D
 from tensorflow.python.keras.layers import Activation, Dropout, Flatten, Dense
 from tensorflow.keras.callbacks import ModelCheckpoint
-
+import numpy as np
 
 
 # Каталог с данными для обучения
