@@ -1,3 +1,4 @@
 *.hdf5
 *.dat
 *.jpg
+*.npy

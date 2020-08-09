@@ -69,24 +69,33 @@ model.compile(loss='binary_crossentropy',
               optimizer='adamax', #adamax
               metrics=['accuracy'])
 
-datagen = ImageDataGenerator(rescale=1. / 255, brightness_range=[0.2,1.0], rotation_range=90, zoom_range=[0.5,1.0])
+train_datagen = ImageDataGenerator(rescale=1. / 255, 
+    rotation_range=40, 
+    width_shift_range=0.2, 
+    height_shift_range=0.2,
+    zoom_range=0.2,
+    shear_range=0.2,
+    horizontal_flip=True,
+    fill_mode='nearest')
+
+test_datagen = ImageDataGenerator(rescale=1. / 255)
 
 print ("Генератор данных для обучения на основе изображений из каталога")
-train_generator = datagen.flow_from_directory(
+train_generator = train_datagen.flow_from_directory(
     train_dir,
     target_size=(img_width, img_height),
     batch_size=batch_size,
     class_mode='binary')
 
 print ("Генератор данных для проверки на основе изображений из каталога")
-val_generator = datagen.flow_from_directory(
+val_generator = test_datagen.flow_from_directory(
     val_dir,
     target_size=(img_width, img_height),
     batch_size=batch_size,
     class_mode='binary')
 
 print ("Генератор данных для тестирования на основе изображений из каталога")
-test_generator = datagen.flow_from_directory(
+test_generator = test_datagen.flow_from_directory(
     test_dir,
     target_size=(img_width, img_height),
     batch_size=batch_size,
