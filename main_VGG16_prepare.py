@@ -50,7 +50,7 @@ labels_test = np.array([0]*(nb_test_samples // 2)
 #Архитектура сети
 model = Sequential()
 model.add(Flatten(input_shape=features_train.shape[1:]))
-model.add(Dense(256, activation = 'relu'))
+model.add(Dense(512, activation = 'relu'))
 model.add(Dropout(0.5))
 model.add(Dense(1, activation = 'sigmoid'))
 
@@ -61,7 +61,7 @@ model.compile(optimizer='Adam',
 
 #learnig model
 model.fit(features_train, labels_train,
-        epochs=15,
+        epochs=30,
         batch_size=64,
         validation_data=(features_val, labels_val),
         verbose=2)
