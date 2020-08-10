@@ -1,8 +1,8 @@
-from tensorflow.python.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.python.keras.models import Sequential
-from tensorflow.python.keras.layers import Conv2D, MaxPooling2D
-from tensorflow.python.keras.layers import Activation, Dropout, Flatten, Dense
-from tensorflow.keras.callbacks import ModelCheckpoint
+from keras.preprocessing.image import ImageDataGenerator
+from keras.models import Sequential
+from keras.layers import Conv2D, MaxPooling2D
+from keras.layers import Activation, Dropout, Flatten, Dense
+from keras.callbacks import ModelCheckpoint
 
 
 #from keras.models import model_from_json
@@ -19,11 +19,11 @@ img_width, img_height = 150, 150
 # backend Tensorflow, channels_last
 input_shape = (img_width, img_height, 3)
 # Количество эпох
-epochs = 30
+epochs = 50
 # Размер мини-выборки
-batch_size = 16#16
+batch_size = 32#16
 # Количество изображений для обучения
-nb_train_samples = 4291
+nb_train_samples = 4290
 # Количество изображений для проверки
 nb_validation_samples = 920
 # Количество изображений для тестирования
@@ -58,7 +58,7 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
 
 
 model.add(Flatten())
-model.add(Dense(64)) #128
+model.add(Dense(128)) #128
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 model.add(Dense(1))
