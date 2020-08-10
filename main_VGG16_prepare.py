@@ -1,11 +1,11 @@
 from keras.applications.vgg16 import VGG16
 from keras.preprocessing import image
 from keras.applications.vgg16 import preprocess_input, decode_predictions
-from tensorflow.python.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.python.keras.models import Sequential
-from tensorflow.python.keras.layers import Conv2D, MaxPooling2D
-from tensorflow.python.keras.layers import Activation, Dropout, Flatten, Dense
-from tensorflow.keras.callbacks import ModelCheckpoint
+from keras.preprocessing.image import ImageDataGenerator
+from keras.models import Sequential
+from keras.layers import Conv2D, MaxPooling2D
+from keras.layers import Activation, Dropout, Flatten, Dense
+from keras.callbacks import ModelCheckpoint
 import numpy as np
 
 
@@ -50,7 +50,7 @@ labels_test = np.array([0]*(nb_test_samples // 2)
 #Архитектура сети
 model = Sequential()
 model.add(Flatten(input_shape=features_train.shape[1:]))
-model.add(Dense(512, activation = 'relu'))
+model.add(Dense(256, activation = 'relu'))
 model.add(Dropout(0.5))
 model.add(Dense(1, activation = 'sigmoid'))
 
@@ -61,11 +61,11 @@ model.compile(optimizer='Adam',
 
 #learnig model
 model.fit(features_train, labels_train,
-        epochs=30,
-        batch_size=64,
+        epochs=epochs,
+        batch_size=batch_size,
         validation_data=(features_val, labels_val),
         verbose=2)
 
 scores = model.evaluate(features_test, labels_test,
-        verbose=1)
+        verbose=2)
 print("Аккуратность на тестовых данных: %.2f%%" % (scores[1]*100))
