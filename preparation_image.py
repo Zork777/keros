@@ -14,7 +14,7 @@ test_data_portion = 0.15
 # Часть набора данных для проверки
 val_data_portion = 0.15
 # Количество элементов данных в одном классе
-nb_images = 6132
+nb_images = 128601
 
 #Функция создания каталога с двумя подкаталогами по названию классов: 
 def create_directory(dir_name):
@@ -32,8 +32,10 @@ create_directory(test_dir)
 #Функция копирования изображений в заданный каталог. Изображения котов и собак копируются в отдельные подкаталоги
 def copy_images(start_index, end_index, source_dir, dest_dir):
     for i in range(start_index, end_index):
+        print (os.path.join(source_dir, "ATM." + str(i) + ".jpg"),'--->',os.path.join(dest_dir, "ATM"))
         shutil.copy2(os.path.join(source_dir, "ATM." + str(i) + ".jpg"), 
                     os.path.join(dest_dir, "ATM"))
+        print (os.path.join(source_dir, "other." + str(i) + ".jpg"),'--->',os.path.join(dest_dir, "other"))
         shutil.copy2(os.path.join(source_dir, "other." + str(i) + ".jpg"), 
                    os.path.join(dest_dir, "other"))
 
