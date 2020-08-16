@@ -23,11 +23,11 @@ epochs = 50
 # Размер мини-выборки
 batch_size = 32#16
 # Количество изображений для обучения
-nb_train_samples = 4290
+nb_train_samples = 90019
 # Количество изображений для проверки
-nb_validation_samples = 920
+nb_validation_samples = 19290
 # Количество изображений для тестирования
-nb_test_samples = 920
+nb_test_samples = 19291
 
 #Архитектура сети
 #Слой свертки, размер ядра 3х3, количество карт признаков - 32 шт., функция активации ReLU.
@@ -58,7 +58,7 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
 
 
 model.add(Flatten())
-model.add(Dense(128)) #128
+model.add(Dense(64)) #128
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 model.add(Dense(1))
