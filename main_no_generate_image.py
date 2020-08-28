@@ -19,7 +19,7 @@ img_width, img_height = 150, 150
 # backend Tensorflow, channels_last
 input_shape = (img_width, img_height, 3)
 # Количество эпох
-epochs = 30
+epochs = 43
 # Размер мини-выборки
 batch_size = 32#16
 # Количество изображений для обучения
@@ -69,15 +69,7 @@ model.compile(loss='binary_crossentropy',
               optimizer='adamax', #adamax
               metrics=['accuracy'])
 
-train_datagen = ImageDataGenerator(rescale=1. / 255, 
-    rotation_range=40, 
-    width_shift_range=0.2, 
-    height_shift_range=0.2,
-    zoom_range=0.2,
-    shear_range=0.2,
-    horizontal_flip=True,
-    fill_mode='nearest')
-
+train_datagen = ImageDataGenerator(rescale=1. / 255)
 test_datagen = ImageDataGenerator(rescale=1. / 255)
 
 print ("Генератор данных для обучения на основе изображений из каталога")
@@ -106,13 +98,12 @@ test_generator = test_datagen.flow_from_directory(
 # {val_acc:.4f} - значение аккуратности на проверочном ноборе данных
 # callbacks = [ModelCheckpoint('save/mnist-dense-{epoch:02d}-{val_acc:.4f}.hdf5')]
 # Сохраняем только лучший вариант сети
-# загружаем веса из сохраненки
 
-model_backup = 'save\\mnist-dense-20-0.9534.hdf5'
+model_backup = 'save\\save_\\mnist-dense-07-0.9460.hdf5'
 print ("Загружаем веса модели из сохраненки",model_backup)
 model.load_weights(model_backup)
 
-callbacks = [ModelCheckpoint('save\\mnist-dense-{epoch:02d}-{val_acc:.4f}.hdf5', monitor='val_loss', save_best_only=False)]
+callbacks = [ModelCheckpoint('save\\save_\\main_no_generate_image-{epoch:02d}-{val_acc:.4f}.hdf5', monitor='val_loss', save_best_only=False)]
 
 print ("Обучаем модель с использованием генераторов")
 model.fit_generator(
