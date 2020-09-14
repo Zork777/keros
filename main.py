@@ -19,7 +19,7 @@ img_width, img_height = 150, 150
 # backend Tensorflow, channels_last
 input_shape = (img_width, img_height, 3)
 # Количество эпох
-epochs = 30
+epochs = 8
 # Размер мини-выборки
 batch_size = 32#16
 # Количество изображений для обучения
@@ -108,11 +108,11 @@ test_generator = test_datagen.flow_from_directory(
 # Сохраняем только лучший вариант сети
 # загружаем веса из сохраненки
 
-model_backup = 'save\\mnist-dense-20-0.9534.hdf5'
+model_backup = 'save\\mnist-dense-23-0.9530.hdf5'
 print ("Загружаем веса модели из сохраненки",model_backup)
 model.load_weights(model_backup)
 
-callbacks = [ModelCheckpoint('save\\mnist-dense-{epoch:02d}-{val_acc:.4f}.hdf5', monitor='val_loss', save_best_only=False)]
+callbacks = [ModelCheckpoint('save\\mnist-dense-stage3-{epoch:02d}-{val_acc:.4f}.hdf5', monitor='val_loss', save_best_only=False)]
 
 print ("Обучаем модель с использованием генераторов")
 model.fit_generator(
