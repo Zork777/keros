@@ -32,8 +32,6 @@ def show_image(img, label='---'):
     plt.title(label)
     plt.show()
 
-
-
 def viewImage(image, window_name='------'):
     cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
     cv2.imshow(window_name, image)
@@ -49,7 +47,7 @@ image_dir = 'Z:\\мой телефон'
 img_width, img_height = 150, 150
 input_shape = (img_width, img_height, 3)
 
-
+#create model
 model = Sequential()
 model.add(Conv2D(32, (3, 3), input_shape=input_shape))
 model.add(Activation('relu'))

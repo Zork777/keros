@@ -1,5 +1,0 @@
-features_train- (4290, 7, 7, 512)
-features_val- (920, 7, 7, 512)
-features_test- (920, 7, 7, 512)
-save fitch....
-saved
