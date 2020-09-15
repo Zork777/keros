@@ -45,7 +45,7 @@ model_backup = 'save\\mnist-dense-stage3-03-0.9599.hdf5'
 
 #каталог с картинками
 #image_dir = 'D:\\work\\ATM_foto\\image_test'
-image_dir = '\\storage\\photo\\мой телефон'
+image_dir = 'Z:\\мой телефон'
 img_width, img_height = 150, 150
 input_shape = (img_width, img_height, 3)
 
@@ -83,15 +83,20 @@ model.compile(loss='binary_crossentropy',
 #чтение картинок из директории
 #datagen = ImageDataGenerator(rescale=1. / 255)
 df = pd.DataFrame(columns=['file_name','flag'])
-info_pict = {'file_name':'', 'flag':''}
+info_pict = {'file_name':'', 'result':0, 'flag':''}
 
 for i, file_name in enumerate(os.listdir(image_dir)):
-    image_new = load_image(image_dir+'\\'+file_name, 0)
+    try:
+        image_new = load_image(image_dir+'\\'+file_name, 0)
+    except Exception:
+        print ('error load file-',file_name)
+        continue
     result = model.predict(image_new)
     sg.one_line_progress_meter('progress meter', i+1, len(os.listdir(image_dir)), '-key-')
 #    print ('{}'.format(i), file_name,'-->','{:0.10f}'.format(result[0][0]), '--> {_a}'.format(_a = 'Work' if result[0][0] <= 0.5 else 'Family'))
     info_pict['file_name']=file_name
-    info_pict['flag']='{_a}'.format(_a = 'Work' if result[0][0] <= 0.5 else 'Family')
+    info_pict['result']=result[0][0]
+    info_pict['flag']='{_a}'.format(_a = 'Work' if result[0][0] <= 0.8 else 'Family')
     df = df.append(info_pict, ignore_index=True)
-     #show_image(image_new, file_name+' --> {_a}'.format(_a = 'Work' if result[0][0] <= 0.5 else 'Family'))
+#    show_image(image_new, file_name+' --> {_a}'.format(_a = 'Work' if result[0][0] <= 0.8 else 'Family')+'|{:0.10f}'.format(result[0][0]))
 df.to_csv('list_image.csv', index_label='N', sep=";")
