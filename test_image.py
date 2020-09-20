@@ -9,6 +9,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import PySimpleGUI as sg
+import exifread
+import datetime
+
 
 #показываем картинку
 def load_image(img_path, show=False):
@@ -81,20 +84,47 @@ model.compile(loss='binary_crossentropy',
 #чтение картинок из директории
 #datagen = ImageDataGenerator(rescale=1. / 255)
 df = pd.DataFrame(columns=['file_name','flag'])
-info_pict = {'file_name':'', 'result':0, 'flag':''}
+info_pict = {'file_name':'', 'result':0, 'flag':'', 'day_week':0, 'hour':0, 'datetime':''}
 
 for i, file_name in enumerate(os.listdir(image_dir)):
+#    if i> 20: break
+    day_week = np.NaN
+    hour = np.NaN
+    dt = np.NaN
+
+#read EXIF info in file
+    try:
+        img = open(image_dir+'\\'+file_name, 'rb')
+    except Exception:
+        print ('error load file for EXIF-',file_name)
+        continue
+    else:
+        tags = exifread.process_file(img)
+        try:
+            dt = datetime.datetime.strptime(str(tags['EXIF DateTimeOriginal']), '%Y:%m:%d %H:%M:%S')
+        except Exception:
+            print ('file_name:{} ---->EXIF not found....'.format(file_name))
+        else:    
+            day_week = datetime.datetime.weekday(dt)+1
+            hour = dt.hour
+    img.close()
+
+#read file for prediction class work or family
     try:
         image_new = load_image(image_dir+'\\'+file_name, 0)
     except Exception:
-        print ('error load file-',file_name)
+        print ('error load file for prediction-',file_name)
         continue
+
     result = model.predict(image_new)
     sg.one_line_progress_meter('progress meter', i+1, len(os.listdir(image_dir)), '-key-')
 #    print ('{}'.format(i), file_name,'-->','{:0.10f}'.format(result[0][0]), '--> {_a}'.format(_a = 'Work' if result[0][0] <= 0.5 else 'Family'))
     info_pict['file_name']=file_name
     info_pict['result']=result[0][0]
-    info_pict['flag']='{_a}'.format(_a = 'Work' if result[0][0] <= 0.8 else 'Family')
+    info_pict['flag']='{_a}'.format(_a = 'Work' if result[0][0] <= 0.99 else 'Family')
+    info_pict['day_week']=day_week if np.isnan(day_week) else int(day_week)
+    info_pict['hour']=hour if np.isnan(hour) else int(hour)
+    info_pict['datetime']=dt
     df = df.append(info_pict, ignore_index=True)
 #    show_image(image_new, file_name+' --> {_a}'.format(_a = 'Work' if result[0][0] <= 0.8 else 'Family')+'|{:0.10f}'.format(result[0][0]))
-df.to_csv('list_image.csv', index_label='N', sep=";")
+df.to_csv('list_image.csv', index_label='N')
