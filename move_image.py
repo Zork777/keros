@@ -19,7 +19,7 @@ if len (sys.argv) > 1:
         sg.one_line_progress_meter('progress meter', n, len_df, '-key-')
         image_dir_target = image_dir_target_home if result > filter_result else image_dir_target_work
         try:
-            shutil.copy2(image_dir_source+'\\'+file_name, image_dir_target+'\\'+file_name)
+            shutil.copy2(image_dir_source+'\\'+file_name, image_dir_target+'\\'+str(round(result, 3))+'_'+file_name)
         except Exception:
             print ('{n}: {file_name}---->error: file skip'.format(n=n, file_name=file_name))
             continue
