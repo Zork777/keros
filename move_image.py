@@ -19,24 +19,24 @@ if len (sys.argv) > 1:
     for n, file_name, result, day_week, hour in zip(range(len_df), df['file_name'], df['result'], df['day_week'], df['hour']):
 #        print ('\n----------\nfile name:{}\nresult:{}\nday_week:{}\nhour:{}'.format(file_name, result, day_week, hour))
         error_predict = ''
-#        if n > 40: break
+#        if n > 100: break
         sg.one_line_progress_meter('progress meter', n, len_df, '-key-')
 
         flag = 'family' if result > filter_result else 'work'
         #проверяем условие когда work при этом в нераб. время
-        if flag == 'work' and (day_week > 5 or (hour > 19 or hour < 9)):
+        if flag == 'work' and (day_week > 5 or (hour >= 18 or hour < 9)):
             flag = 'family' 
             error_predict = '\\error_predict'
         
         #проверяем условие когда family при этом в раб. время
-        if flag == 'family' and (day_week < 6 and (hour < 18 and hour > 9)):
+        if flag == 'family' and (day_week < 6 or (hour < 18 and hour >= 9)):
             flag = 'work'
             error_predict = '\\error_predict'
         image_dir_target = image_dir_target_home+error_predict if flag == 'family' else image_dir_target_work+error_predict
 
         try:
 #            print (image_dir_source+'\\'+file_name+'----->'+image_dir_target+'\\'+str(round(result, 3))+'_'+file_name)
-            shutil.copy2(image_dir_source+'\\'+file_name, image_dir_target+'\\'+str(round(result, 3))+'_'+file_name)
+            shutil.copy2(image_dir_source+'\\'+file_name, image_dir_target+'\\'+str(round(result, 3))+'_D'+str(day_week)+'_H'+str(hour)+'_'+file_name)
         except Exception:
             print ('{n}: {file_name}---->error: file skip'.format(n=n, file_name=file_name))
             continue
