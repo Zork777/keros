@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 import os
+import datetime
 from keras.models import Model
 from keras.layers import Dense, Flatten, Input
 from keras.layers import Dropout, BatchNormalization
@@ -9,16 +10,17 @@ from keras.layers import Conv2D, MaxPooling2D
 from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ModelCheckpoint
+from keras.callbacks import EarlyStopping
 import matplotlib.pyplot as plt
 
 
-classes=['work', 'family']
+#classes=['work', 'family']
 # Каталог с данными для обучения
-train_dir = 'D:\\work\\ATM_foto\\train'
+train_dir = 'C:\\work\\ATM_foto\\train'
 # Каталог с данными для проверки
-val_dir = 'D:\\work\\ATM_foto\\val'
+val_dir = 'C:\\work\\ATM_foto\\val'
 # Каталог с данными для тестирования
-test_dir = 'D:\\work\\ATM_foto\\test'
+test_dir = 'C:\\work\\ATM_foto\\test'
 # Размеры изображения
 img_width, img_height = 150, 150
 # Размерность тензора на основе изображения для входных данных в нейронную сеть
@@ -27,7 +29,7 @@ input_shape = (img_width, img_height, 3)
 # Количество эпох
 epochs = 50
 # Размер мини-выборки
-batch_size = 32#16
+batch_size = 32
 # Количество изображений для обучения
 nb_train_samples = 90019
 # Количество изображений для проверки
@@ -44,32 +46,32 @@ def create_model():
     x = MaxPooling2D(pool_size=(2, 2))(x)
     x = Dropout(0.25)(x)
     x = BatchNormalization()(x)
-    x = Conv2D(64, (3, 3), padding='same', activation='relu')(x)
+    x = Conv2D(32, (3, 3), padding='same', activation='relu')(x)
     x = Conv2D(64, (3, 3), activation='relu')(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     x = Dropout(0.25)(x)
     x = Flatten()(x)
     x = Dense(512, activation='relu')(x)
     x = Dropout(0.5)(x)
-    output_layer = Dense(1, activation='softmax')(x)
+    output_layer = Dense(1, activation='sigmoid')(x)
     model = Model(inputs=[input_layer], outputs=[output_layer])
     
     model.compile(
-        optimizer=keras.optimizers.Adam(learning_rate=0.001),
-        loss=tf.keras.losses.sparse_categorical_crossentropy,
-        metrics=['sparse_categorical_accuracy'])
+        optimizer=keras.optimizers.Adamax(),#learning_rate=0.001),
+        loss='binary_crossentropy',
+        metrics=['accuracy'])#sparse_categorical_accuracy'])
     return model   
 
 cpu_model = create_model()
 
-train_datagen = ImageDataGenerator(rescale=1. / 255, 
-    rotation_range=40, 
-    width_shift_range=0.2, 
-    height_shift_range=0.2,
-    zoom_range=0.2,
-    shear_range=0.2,
-    horizontal_flip=True,
-    fill_mode='nearest')
+train_datagen = ImageDataGenerator(rescale=1. / 255) 
+    # rotation_range=40, 
+    # width_shift_range=0.2, 
+    # height_shift_range=0.2,
+    # zoom_range=0.2,
+    # shear_range=0.2,
+    # horizontal_flip=True,
+    # fill_mode='nearest')
 
 test_datagen = ImageDataGenerator(rescale=1. / 255)
 
@@ -105,7 +107,9 @@ test_generator = test_datagen.flow_from_directory(
 # print ("Загружаем веса модели из сохраненки",model_backup)
 # model.load_weights(model_backup)
 
-callbacks = [ModelCheckpoint('save\\ver2-{epoch:02d}-{val_acc:.4f}.hdf5', monitor='val_loss', save_best_only=False)]
+#callbacks = [ModelCheckpoint('save\\ver2-{epoch:02d}-{val_loss:.4f}.hdf5', monitor='val_loss', save_best_only=False, save_weights_only=False),
+#             EarlyStopping(monitor="loss", patience=3)]
+callbacks = [EarlyStopping(monitor="loss", patience=3)]            
 
 print ("Обучаем модель с использованием генераторов")
 
@@ -122,4 +126,14 @@ history = cpu_model.fit_generator(
 # Оцениваем качество обучения модели на тестовых данных
 scores = cpu_model.evaluate_generator(test_generator, nb_test_samples // batch_size)
 print("Аккуратность на тестовых данных: %.2f%%" % (scores[1]*100))
+
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.show()
+
+cpu_model.save_weights("save\\ver2__model.h5")
 
