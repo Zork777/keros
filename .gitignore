@@ -4,3 +4,4 @@
 *.npy
 list_image.csv
 *.csv
+test_directory\*.*
