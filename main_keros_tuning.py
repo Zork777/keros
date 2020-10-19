@@ -70,7 +70,7 @@ def create_model(hp):
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
     for i in range(hp.Int('layers', 1, 5)):
-        model.add(Conv2D(hp.Int(f'count_{i}_neur_layer', min_value=32, max_value=64, step=32), (3, 3)))#, padding='same'))
+        model.add(Conv2D(hp.Int(f'count_{i}_neur_layer', min_value=32, max_value=64, step=32), (3, 3), padding='same'))
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Dropout(hp.Float(f'dropout_{i}_layer', min_value=0.125, max_value=0.5, step=0.125)))
@@ -91,14 +91,14 @@ tuner = RandomSearch(
     create_model,                 # функция создания модели
     objective='val_accuracy',    # метрика, которую нужно оптимизировать - 
                                  # доля правильных ответов на проверочном наборе данных
-    max_trials=200,               # максимальное количество запусков обучения 
-    executions_per_trial=3,
+    max_trials=100,               # максимальное количество запусков обучения 
+    executions_per_trial=2,
     directory='test_directory'   # каталог, куда сохраняются обученные сети  
     )
 
 tuner.search_space_summary()
 print ("Обучаем модель с использованием генераторов")
-tuner.search(train_generator, epochs=2, validation_data=val_generator)
+tuner.search(train_generator, epochs=3, validation_data=val_generator)
 tuner.results_summary()
 
 #models = tuner.get_best_models(num_models=5)
