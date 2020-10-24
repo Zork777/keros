@@ -35,32 +35,30 @@ nb_validation_samples = 19290
 # Количество изображений для тестирования
 nb_test_samples = 19291
 
-train_datagen = ImageDataGenerator(rescale=1. / 255) 
-test_datagen = ImageDataGenerator(rescale=1. / 255)
-print(tf.__version__)
-print ("Генератор данных для обучения на основе изображений из каталога")
-train_generator = train_datagen.flow_from_directory(
-    train_dir,
-    target_size=(img_width, img_height),
-    batch_size=batch_size,
-    class_mode='binary')
+# train_datagen = ImageDataGenerator(rescale=1. / 255) 
+# test_datagen = ImageDataGenerator(rescale=1. / 255)
+# print(tf.__version__)
+# print ("Генератор данных для обучения на основе изображений из каталога")
+# train_generator = train_datagen.flow_from_directory(
+#     train_dir,
+#     target_size=(img_width, img_height),
+#     batch_size=batch_size,
+#     class_mode='binary')
 
-print ("Генератор данных для проверки на основе изображений из каталога")
-val_generator = test_datagen.flow_from_directory(
-    val_dir,
-    target_size=(img_width, img_height),
-    batch_size=batch_size,
-    class_mode='binary')
+# print ("Генератор данных для проверки на основе изображений из каталога")
+# val_generator = test_datagen.flow_from_directory(
+#     val_dir,
+#     target_size=(img_width, img_height),
+#     batch_size=batch_size,
+#     class_mode='binary')
 
-print ("Генератор данных для тестирования на основе изображений из каталога")
-test_generator = test_datagen.flow_from_directory(
-    test_dir,
-    target_size=(img_width, img_height),
-    batch_size=batch_size,
-    class_mode='binary')
+# print ("Генератор данных для тестирования на основе изображений из каталога")
+# test_generator = test_datagen.flow_from_directory(
+#     test_dir,
+#     target_size=(img_width, img_height),
+#     batch_size=batch_size,
+#     class_mode='binary')
 
-# def swish_activation(x):
-#     return (K.sigmoid(x) * x)
 
 def create_model(hp):
     model = Sequential()
@@ -96,10 +94,10 @@ tuner = RandomSearch(
     directory='test_directory'   # каталог, куда сохраняются обученные сети  
     )
 
-tuner.search_space_summary()
-print ("Обучаем модель с использованием генераторов")
-tuner.search(train_generator, epochs=3, validation_data=val_generator)
-tuner.results_summary()
+# tuner.search_space_summary()
+# print ("Обучаем модель с использованием генераторов")
+# tuner.search(train_generator, epochs=3, validation_data=val_generator)
+
 
 #models = tuner.get_best_models(num_models=5)
 
