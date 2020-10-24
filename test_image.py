@@ -41,8 +41,43 @@ def viewImage(image, window_name='------'):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-#путь до модели
-model_backup = 'save\\mnist-dense-stage3-03-0.9599.hdf5'
+def model_v3():
+    model = Sequential()
+    model.add(Conv2D(32, (3, 3), input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Conv2D(32, (3, 3)))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+    model.add(Dropout(0.125))
+
+    model.add(Conv2D(32, (3, 3)))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+    model.add(Dropout(0.5))
+
+    model.add(Conv2D(32, (3, 3)))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+    model.add(Dropout(0.5))
+
+
+    model.add(Flatten())
+    model.add(Dense(192)) #128
+    model.add(Activation('relu'))
+    model.add(Dropout(0.25))
+    model.add(Dense(1))
+    model.add(Activation('sigmoid'))
+
+    print ("Компилируем нейронную сеть model V3")
+    model.compile(loss='binary_crossentropy',
+                optimizer='adamax', 
+                metrics=['accuracy'])
+    model_backup = 'save\\ver3_gpu-37-0.0335-0.9564-Test94.79.hdf5'
+    print ("Загружаем веса модели из сохраненки",model_backup)
+    model.load_weights(model_backup)
+    return model
 
 #каталог с картинками
 #image_dir = 'D:\\work\\ATM_foto\\image_test'
@@ -51,35 +86,7 @@ img_width, img_height = 150, 150
 input_shape = (img_width, img_height, 3)
 
 #create model
-model = Sequential()
-model.add(Conv2D(32, (3, 3), input_shape=input_shape))
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-
-model.add(Conv2D(32, (3, 3)))
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-
-model.add(Conv2D(64, (3, 3))) #128
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-
-model.add(Flatten())
-model.add(Dense(64)) #128
-model.add(Activation('relu'))
-model.add(Dropout(0.5))
-model.add(Dense(1))
-model.add(Activation('sigmoid'))
-
-model.load_weights(model_backup)
-print ('model is load...')
-
-print ("Компилируем нейронную сеть")
-model.compile(loss='binary_crossentropy',
-              optimizer='adamax',
-              metrics=['accuracy'])
-
-
+model = model_v3()
 
 #чтение картинок из директории
 #datagen = ImageDataGenerator(rescale=1. / 255)
