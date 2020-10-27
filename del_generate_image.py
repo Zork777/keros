@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 
 # Каталог с данными для обучения
-image_dir = 'D:\\work\\ATM_foto\\Source\\other'
+image_dir = 'D:\\work\\ATM_foto\\image'
 img_width, img_height = 150, 150
 
 def generate_image(img, name_file):
@@ -12,24 +12,26 @@ def generate_image(img, name_file):
                     batch_size=1,
                     save_to_dir=image_dir,
                     save_prefix='gen_'+name_file,
-                    save_format='jpg',
-                    target_size=(img_width, img_height))):
+                    save_format='jpg')):
         pass
 #        print (i,'\r')
 
 
-datagen = ImageDataGenerator(rescale=1. / 255) 
+#datagen = ImageDataGenerator(rescale=1. / 255) 
 
-# datagen = ImageDataGenerator( 
-#     rotation_range=40, 
-#     width_shift_range=0.2, 
-#     height_shift_range=0.2,
-#     zoom_range=0.2,
-#     shear_range=0.2,
-#     horizontal_flip=True,
-#     fill_mode='nearest')
+datagen = ImageDataGenerator( 
+    rescale=1. / 255,
+#    rotation_range=40, 
+    width_shift_range=0.2, 
+    height_shift_range=0.2,
+    zoom_range=0.2,
+    shear_range=0.2,
+    horizontal_flip=True,
+    fill_mode='nearest')
+
 n=0
-n_files = len (os.listdir(image_dir+'\\other'))
+#n_files = len (os.listdir(image_dir+'\\other'))
+n_files = 7
 for batch in datagen.flow_from_directory(
                         image_dir,
                         target_size=(img_width, img_height),

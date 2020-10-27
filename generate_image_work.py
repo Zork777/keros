@@ -3,8 +3,8 @@ import os
 
 
 # Каталог с данными для обучения
-image_dir = 'D:\\work\\ATM_foto\\Source_telefone\\home_foto'
-target_dir = 'C:\\work\\ATM_foto\\home'
+image_dir = 'D:\\work\\ATM_foto\\Source_telefone\\work_foto'
+target_dir = 'C:\\work\\ATM_foto\\work'
 img_width, img_height = 150, 150
 
 datagen = ImageDataGenerator( 
@@ -19,11 +19,11 @@ datagen = ImageDataGenerator(
     fill_mode='nearest')
 
 n=0
-n_files = len (os.listdir(image_dir+'\\home'))
+n_files = len (os.listdir(image_dir+'\\work'))
 for batch in datagen.flow_from_directory(
                         image_dir,
                         target_size=(img_width, img_height),
-                        batch_size=21, #кол-во генерируемых фотографий, отчет от 0
+                        batch_size=13, #кол-во генерируемых фотографий, отчет от 0
                         class_mode='binary',
                         shuffle=False,
                         save_to_dir=target_dir,

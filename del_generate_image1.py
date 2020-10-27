@@ -2,7 +2,8 @@ from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_a
 import os
 
 # Каталог с данными для обучения
-image_dir = 'D:\\work\\ATM_foto\\Source\\other'
+image_dir = 'D:\\work\\ATM_foto\\image'
+img_width, img_height = 150, 150
 
 def generate_image(img, name_file):
     for i,b in zip(range(20), datagen.flow(
@@ -12,11 +13,10 @@ def generate_image(img, name_file):
                     save_prefix='gen_'+name_file,
                     save_format='jpg')):
         pass
-#        print (i,'\r')
-
 
 datagen = ImageDataGenerator( 
-    rotation_range=40, 
+    rescale=1. / 255,
+#    rotation_range=40, 
     width_shift_range=0.2, 
     height_shift_range=0.2,
     zoom_range=0.2,
