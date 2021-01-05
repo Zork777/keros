@@ -31,28 +31,30 @@ class Work_file:
         self.path = path
         self.image_dir_target_work = path + '\\' + dir_work
         self.image_dir_target_home = path + '\\' + dir_home
-        self.create_dir()
-        pass
+        if self.create_dir():
+            exit(1)
 
     def create_dir(self):
         if os.path.isdir(self.image_dir_target_work):
             print (f'Директория найдена: {self.image_dir_target_work}')
         else:
             try:
-                print (f'Создали директорию: {self.image_dir_target_work}')
+                print (f'Создаем директорию: {self.image_dir_target_work}')
                 os.mkdir(self.image_dir_target_work)
             except Exception:
                 print (f'Не удалось создать директорию: {self.image_dir_target_work}')
+                return True
         
         
         if  os.path.isdir(self.image_dir_target_home):
             print (f'Директория найдена: {self.image_dir_target_home}')            
         else:
             try:
-                print (f'Создали директорию: {self.image_dir_target_home}')
+                print (f'Создаем директорию: {self.image_dir_target_home}')
                 os.mkdir(self.image_dir_target_home)
             except Exception:
                 print (f'Не удалось создать директорию: {self.image_dir_target_home}')
+                return True
 
     def move_file(self, file_name, flag):
         self.file_name = file_name
@@ -129,7 +131,7 @@ def main():
             print ('error load file for prediction-',file_name)
             continue
         result = model.predict(img)
-        show_image(img, '{_a}'.format(_a = 'Work' if result[0][0] < 0.5 else 'Family'))
+#        show_image(img, '{_a}'.format(_a = 'Work' if result[0][0] < 0.5 else 'Family'))
         work_file.move_file(file_name, '{_a}'.format(_a = 'Work' if result[0][0] < 0.5 else 'Family'))
 
 
