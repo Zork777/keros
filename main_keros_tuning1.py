@@ -11,6 +11,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 import matplotlib.pyplot as plt
 from kerastuner.tuners import RandomSearch
+image_dataset_from_directory = tensorflow.keras.preprocessing.image_dataset_from_directory
 
 
 # Каталог с данными для обучения
@@ -36,58 +37,48 @@ nb_validation_samples = len(os.listdir(val_dir+'\\atm'))
 # Количество изображений для тестирования
 nb_test_samples = len(os.listdir(test_dir+'\\atm'))
 
-train_datagen = ImageDataGenerator(rescale=1. / 255) 
-test_datagen = ImageDataGenerator(rescale=1. / 255)
-val_datagen = ImageDataGenerator(rescale=1. / 255)
-
-print(tf.__version__)
 print ("Генератор данных для обучения на основе изображений из каталога")
-train_generator = train_datagen.flow_from_directory(
-    train_dir,
-    target_size=(img_width, img_height),
-    batch_size=batch_size,
-    class_mode='binary')
+train_dataset = image_dataset_from_directory(train_dir, batch_size=batch_size, image_size=image_size)
+validation_dataset = image_dataset_from_directory(val_dir, batch_size=batch_size, image_size=image_size)
+test_dataset = image_dataset_from_directory(test_dir, batch_size=batch_size, image_size=image_size)
 
-print ("Генератор данных для проверки на основе изображений из каталога")
-val_generator = val_datagen.flow_from_directory(
-    val_dir,
-    target_size=(img_width, img_height),
-    batch_size=batch_size,
-    class_mode='binary')
-
-print ("Генератор данных для тестирования на основе изображений из каталога")
-test_generator = test_datagen.flow_from_directory(
-    test_dir,
-    target_size=(img_width, img_height),
-    batch_size=batch_size,
-    class_mode='binary')
+AUTOTUNE = tensorflow.data.experimental.AUTOTUNE
+train_dataset = train_dataset.prefetch(buffer_size=AUTOTUNE)
+validation_dataset = validation_dataset.prefetch(buffer_size=AUTOTUNE)
+test_dataset = test_dataset.prefetch(buffer_size=AUTOTUNE)
 
 
 def create_model(hp):
     model = Sequential()
-
-    model.add(Conv2D(hp.Int('input_neur', min_value=64, max_value=128, step=32), (3, 3), input_shape=input_shape))
-    model.add(Activation('relu'))
+    
+    model.add(Conv2D(hp.Int(f'count_conv2d_neur_layer-1', min_value=32, max_value=256, step=32), (3, 3), activation='relu', kernel_initializer='he_uniform', input_shape=input_shape))
+    model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(hp.Float(f'dropout_Dense_layer-1', min_value=0.1, max_value=0.5, step=0.1)))
 
-    for i in range(1, hp.Int('layers_conv', 1, 3)):
-        count_conv2d_size = hp.Int(f'count_conv2d_size_layer-{i}', min_value=3, max_value=5, step=1) 
-        model.add(Conv2D(hp.Int(f'count_conv2d_neur_layer-{i}', min_value=32, max_value=64, step=32), (count_conv2d_size, count_conv2d_size))) #, padding='same'
-        model.add(Activation('relu'))
-        model.add(BatchNormalization())
-        model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Conv2D(hp.Int(f'count_conv2d_neur_layer-2', min_value=32, max_value=128, step=32), (3, 3), activation='relu', kernel_initializer='he_uniform'))
+    model.add(BatchNormalization())
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(hp.Float(f'dropout_Dense_layer-2', min_value=0.1, max_value=0.5, step=0.1)))
+
+    model.add(Conv2D(hp.Int(f'count_conv2d_neur_layer-3', min_value=32, max_value=128, step=32), (3, 3), activation='relu', kernel_initializer='he_uniform'))
+    model.add(BatchNormalization())
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(hp.Float(f'dropout_Dense_layer-3', min_value=0.1, max_value=0.5, step=0.1)))
 
     model.add(Flatten())
-    
-    for n in range(1, hp.Int('layers_conv', 1, 2)):
-        model.add(Dense(hp.Int(f'count_neur_Dense_layer-{n}', min_value=250, max_value=1000, step=250)))
-        model.add(Activation('relu'))
-        model.add(BatchNormalization())
-        model.add(Dropout(hp.Float(f'dropout_Dense_layer-{n}', min_value=0.25, max_value=0.5, step=0.25)))
+    model.add(Dense(hp.Int(f'count_neur_Dense_layer-4', min_value=250, max_value=1000, step=250), activation='relu'))
+    model.add(BatchNormalization())
+    model.add(Dropout(hp.Float(f'dropout_Dense_layer-4', min_value=0.1, max_value=0.5, step=0.1)))
 
-    model.add(Dense(100, activation='relu'))
+    model.add(Dense(hp.Int(f'count_neur_Dense_layer-5', min_value=250, max_value=1000, step=250), activation='relu'))
+    model.add(BatchNormalization())
+    model.add(Dropout(hp.Float(f'dropout_Dense_layer-5', min_value=0.1, max_value=0.5, step=0.1)))
+
+    model.add(Dense(hp.Int(f'count_neur_Dense_layer-6', min_value=100, max_value=400, step=100), activation='relu'))
+    model.add(Dense(hp.Int(f'count_neur_Dense_layer-7', min_value=100, max_value=400, step=100), activation='relu'))
     model.add(Dense(1, activation='sigmoid'))
-    
+
     model.compile(
         optimizer=hp.Choice('optimizer', values=['adam','adamax']),
         loss='binary_crossentropy',
@@ -105,14 +96,14 @@ tuner = RandomSearch(
 
 tuner.search_space_summary()
 print ("Обучаем модель с использованием генераторов")
-tuner.search(train_generator, epochs=epochs, validation_data=val_generator)
+tuner.search(train_dataset, epochs=epochs, validation_data=validation_dataset)
 
 
 models = tuner.get_best_models(num_models=5)
 
 for model in models:
     model.summary()
-    model.evaluate_generator(test_generator, nb_test_samples // batch_size)
+    model.evaluate(test_dataset)
     print('-------')
 
 print (tuner.get_best_hyperparameters()[0].values)

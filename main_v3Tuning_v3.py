@@ -5,7 +5,8 @@ from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import EarlyStopping
 import matplotlib.pyplot as plt
-from tensorflow.keras import backend as K
+from keras.models import Model
+from tensorflow import keras
 import os
 
 
@@ -23,10 +24,9 @@ img_width, img_height = 150, 150
 # backend Tensorflow, channels_last
 input_shape = (img_width, img_height, 3)
 # Количество эпох
-epochs = 100
+epochs = 200
 # Размер мини-выборки
 batch_size = 32#16
-
 # Количество изображений для обучения
 nb_train_samples = len(os.listdir(train_dir+'\\atm'))
 # Количество изображений для проверки
@@ -54,38 +54,39 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
 
 model.add(Conv2D(32, (3, 3)))
 model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+model.add(Dropout(0.125))
 
-
-model.add(Conv2D(64, (3, 3))) #128
+model.add(Conv2D(32, (3, 3)))
 model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+model.add(Dropout(0.5))
+
+model.add(Conv2D(32, (3, 3)))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+model.add(Dropout(0.5))
 
 
 model.add(Flatten())
-model.add(Dense(64)) #128
+model.add(Dense(192))
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+model.add(Dropout(0.25))
 model.add(Dense(1))
 model.add(Activation('sigmoid'))
 
-print ("Компилируем нейронную сеть")
+print ("Компилируем нейронную сеть model V3T")
 model.compile(loss='binary_crossentropy',
-              optimizer='adamax', #adamax
-              metrics=['accuracy'])
+            optimizer=keras.optimizers.Adamax(lr=0.0023903781401031334),
+            metrics=['accuracy'])
+
+model_backup = 'save_big_test\\ver3_Tuning_ver3-65-0.9304.hdf5'
+print ("Загружаем веса модели из сохраненки",model_backup)
+model.load_weights(model_backup)
 
 train_datagen = ImageDataGenerator(rescale=1. / 255)
 val_datagen = ImageDataGenerator(rescale=1. / 255)
 test_datagen = ImageDataGenerator(rescale=1. / 255)
-
-#    rotation_range=40, 
-#    width_shift_range=0.2, 
-#    height_shift_range=0.2,
-#    zoom_range=0.2,
-#    shear_range=0.2,
-#    horizontal_flip=True,
-#    fill_mode='nearest')
-
 
 print ("Генератор данных для обучения на основе изображений из каталога")
 train_generator = train_datagen.flow_from_directory(
@@ -108,39 +109,25 @@ test_generator = test_datagen.flow_from_directory(
     batch_size=batch_size,
     class_mode='binary')
 
-# Сохраняем сеть на каждой эпохе
-# {epoch:02d} - номер эпохи
-# {val_acc:.4f} - значение аккуратности на проверочном ноборе данных
-# callbacks = [ModelCheckpoint('save/mnist-dense-{epoch:02d}-{val_acc:.4f}.hdf5')]
-# Сохраняем только лучший вариант сети
-# загружаем веса из сохраненки
+# checkpoint = ModelCheckpoint('save_big_test\\ver3_Tuning_ver3-{epoch:02d}-{val_accuracy:.4f}.hdf5', monitor='val_accuracy', save_best_only=True)
+# print ("Обучаем модель с использованием генераторов")
+# history = model.fit_generator(
+#         train_generator,
+#         steps_per_epoch=nb_train_samples // batch_size,
+#         epochs=epochs,
+#         validation_data=val_generator,
+#         validation_steps=nb_validation_samples // batch_size,
+#         callbacks=[checkpoint])
 
-#model_backup = 'save\\mnist-dense-23-0.9530.hdf5'
-#print ("Загружаем веса модели из сохраненки",model_backup)
-#model.load_weights(model_backup)
-
-callbacks = [ModelCheckpoint('save_big_test\\ver1-{epoch:02d}-{val_accuracy:.4f}.hdf5', monitor='val_accuracy', save_best_only=True),
-		EarlyStopping(monitor="loss", patience=5)]
-
-print ("Обучаем модель с использованием генераторов")
-history = model.fit_generator(
-    train_generator,
-    steps_per_epoch=nb_train_samples // batch_size,
-    epochs=epochs,
-    validation_data=val_generator,
-    validation_steps=nb_validation_samples // batch_size,
-    callbacks=callbacks)
+# plt.plot(history.history['accuracy'])
+# plt.plot(history.history['val_accuracy'])
+# plt.title('model accuracy')
+# plt.ylabel('accuracy')
+# plt.xlabel('epoch')
+# plt.legend(['train', 'test'], loc='upper left')
+# plt.show()
 
 scores = model.evaluate_generator(test_generator, nb_test_samples // batch_size)
 print("Аккуратность на тестовых данных: %.2f%%" % (scores[1]*100))
 
-
-plt.plot(history.history['accuracy'])
-plt.plot(history.history['val_accuracy'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.show()
-
-#Аккуратность на тестовых данных: 79.63%
+#88,91%

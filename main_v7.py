@@ -1,13 +1,29 @@
-from keras.preprocessing.image import ImageDataGenerator
-from keras.models import Sequential
-from keras.layers import Conv2D, MaxPooling2D
-from keras.layers import Activation, Dropout, Flatten, Dense
-from keras.callbacks import ModelCheckpoint
-from keras.callbacks import EarlyStopping
-import matplotlib.pyplot as plt
-from tensorflow.keras import backend as K
-import os
+import tensorflow
+#ImageDataGenerator = tensorflow.keras.preprocessing.image.ImageDataGenerator
+Adam = tensorflow.keras.optimizers.Adam
+Sequential = tensorflow.keras.Sequential
+Model = tensorflow.keras.Model
+layers = tensorflow.keras.layers
+BatchNormalization = tensorflow.keras.layers.BatchNormalization
+Conv2D = tensorflow.keras.layers.Conv2D
+MaxPooling2D = tensorflow.keras.layers.MaxPooling2D
+Flatten = tensorflow.keras.layers.Flatten
+Dropout = tensorflow.keras.layers.Dropout
+Dense = tensorflow.keras.layers.Dense
+TensorBoard = tensorflow.keras.callbacks.TensorBoard
+ModelCheckpoint = tensorflow.keras.callbacks.ModelCheckpoint
 
+
+from keras.preprocessing.image import ImageDataGenerator
+# from keras.models import Sequential, Model
+# from keras.layers import Conv2D, MaxPooling2D
+# from keras.layers import Activation, Dropout, Flatten, Dense, BatchNormalization
+# from keras.optimizers import SGD, Adam
+# from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
+
+import matplotlib.pyplot as plt
+import os
+import datetime
 
 #from keras.models import model_from_json
 
@@ -18,7 +34,9 @@ val_dir = 'C:\\work1\\ATM_foto\\val'
 # Каталог с данными для тестирования
 test_dir = 'C:\\work1\\ATM_foto\\test'
 # Размеры изображения
-img_width, img_height = 150, 150
+
+img_width, img_height = 110, 110
+
 # Размерность тензора на основе изображения для входных данных в нейронную сеть
 # backend Tensorflow, channels_last
 input_shape = (img_width, img_height, 3)
@@ -26,7 +44,6 @@ input_shape = (img_width, img_height, 3)
 epochs = 100
 # Размер мини-выборки
 batch_size = 32#16
-
 # Количество изображений для обучения
 nb_train_samples = len(os.listdir(train_dir+'\\atm'))
 # Количество изображений для проверки
@@ -34,58 +51,50 @@ nb_validation_samples = len(os.listdir(val_dir+'\\atm'))
 # Количество изображений для тестирования
 nb_test_samples = len(os.listdir(test_dir+'\\atm'))
 
-#Архитектура сети
-#Слой свертки, размер ядра 3х3, количество карт признаков - 32 шт., функция активации ReLU.
-#Слой подвыборки, выбор максимального значения из квадрата 2х2
-#Слой свертки, размер ядра 3х3, количество карт признаков - 32 шт., функция активации ReLU.
-#Слой подвыборки, выбор максимального значения из квадрата 2х2
-#Слой свертки, размер ядра 3х3, количество карт признаков - 64 шт., функция активации ReLU.
-#Слой подвыборки, выбор максимального значения из квадрата 2х2
-#Слой преобразования из двумерного в одномерное представление
-#Полносвязный слой, 64 нейрона, функция активации ReLU.
-#Слой Dropout.
-#Выходной слой, 1 нейрон, функция активации sigmoid
-#Слои с 1 по 6 используются для выделения важных признаков в изображении, а слои с 7 по 10 - для классификации.
 
 model = Sequential()
-model.add(Conv2D(32, (3, 3), input_shape=input_shape))
-model.add(Activation('relu'))
+model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=input_shape))
+model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.2))
 
-model.add(Conv2D(32, (3, 3)))
-model.add(Activation('relu'))
+model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.3))
 
-
-model.add(Conv2D(64, (3, 3))) #128
-model.add(Activation('relu'))
+model.add(Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=(2, 2)))
-
+model.add(Dropout(0.4))
 
 model.add(Flatten())
-model.add(Dense(64)) #128
-model.add(Activation('relu'))
-model.add(Dropout(0.5))
-model.add(Dense(1))
-model.add(Activation('sigmoid'))
+model.add(Dense(1000, activation='relu', kernel_initializer='he_uniform'))
+model.add(BatchNormalization())
+model.add(Dropout(0.3))
 
-print ("Компилируем нейронную сеть")
+model.add(Dense(500, activation='relu', kernel_initializer='he_uniform'))
+model.add(BatchNormalization())
+model.add(Dropout(0.3))
+
+model.add(Dense(250, activation='relu', kernel_initializer='he_uniform'))
+model.add(BatchNormalization())
+model.add(Dense(1, activation='sigmoid'))
+
+
+print ("Компилируем нейронную сеть ver7")
+opt = Adam(learning_rate=0.000112202)
 model.compile(loss='binary_crossentropy',
-              optimizer='adamax', #adamax
-              metrics=['accuracy'])
+            optimizer=opt,
+            metrics=['accuracy'])
+model_backup = 'save_big_test\\ver7-92-0.9359_110x110.hdf5'
+print ("Загружаем веса модели из сохраненки",model_backup)
+model.load_weights(model_backup)
+    
 
 train_datagen = ImageDataGenerator(rescale=1. / 255)
 val_datagen = ImageDataGenerator(rescale=1. / 255)
 test_datagen = ImageDataGenerator(rescale=1. / 255)
-
-#    rotation_range=40, 
-#    width_shift_range=0.2, 
-#    height_shift_range=0.2,
-#    zoom_range=0.2,
-#    shear_range=0.2,
-#    horizontal_flip=True,
-#    fill_mode='nearest')
-
 
 print ("Генератор данных для обучения на основе изображений из каталога")
 train_generator = train_datagen.flow_from_directory(
@@ -115,12 +124,11 @@ test_generator = test_datagen.flow_from_directory(
 # Сохраняем только лучший вариант сети
 # загружаем веса из сохраненки
 
-#model_backup = 'save\\mnist-dense-23-0.9530.hdf5'
-#print ("Загружаем веса модели из сохраненки",model_backup)
-#model.load_weights(model_backup)
 
-callbacks = [ModelCheckpoint('save_big_test\\ver1-{epoch:02d}-{val_accuracy:.4f}.hdf5', monitor='val_accuracy', save_best_only=True),
-		EarlyStopping(monitor="loss", patience=5)]
+
+log_dir = 'logs_' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+checkpoint = ModelCheckpoint('save_big_test\\ver7_ver2-{epoch:02d}-{val_accuracy:.4f}.hdf5', monitor='val_accuracy', save_best_only=True)
+tensorboard_callback = TensorBoard(log_dir=log_dir, histogram_freq=1)
 
 print ("Обучаем модель с использованием генераторов")
 history = model.fit_generator(
@@ -129,18 +137,17 @@ history = model.fit_generator(
     epochs=epochs,
     validation_data=val_generator,
     validation_steps=nb_validation_samples // batch_size,
-    callbacks=callbacks)
+    callbacks=[checkpoint, tensorboard_callback])
 
 scores = model.evaluate_generator(test_generator, nb_test_samples // batch_size)
 print("Аккуратность на тестовых данных: %.2f%%" % (scores[1]*100))
 
+# plt.plot(history.history['accuracy'])
+# plt.plot(history.history['val_accuracy'])
+# plt.title('model accuracy')
+# plt.ylabel('accuracy')
+# plt.xlabel('epoch')
+# plt.legend(['train', 'test'], loc='upper left')
+# plt.show()
 
-plt.plot(history.history['accuracy'])
-plt.plot(history.history['val_accuracy'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.show()
-
-#Аккуратность на тестовых данных: 79.63%
+#Аккуратность на тестовых данных: 90.4%
