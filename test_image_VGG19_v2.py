@@ -150,7 +150,7 @@ def main():
 if __name__ == '__main__':
     while 1:
         date_now = datetime.datetime.now()
-        time.sleep(1)
+        time.sleep(60*30)
         print ('Сканирование фото в директории произойдет в {} часов- сейчас: {}\r'.format(timer_hour, datetime.datetime.now().isoformat()), end='')
         if date_now.hour == timer_hour:
             main()
