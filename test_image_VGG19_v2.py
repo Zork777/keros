@@ -154,4 +154,4 @@ if __name__ == '__main__':
         if date_now.hour == timer_hour:
             main()
             print('Сканирование директории завершено.')
-            time.sleep(60*30)
+        time.sleep(60*30)

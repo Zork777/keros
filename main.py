@@ -6,33 +6,34 @@ from keras.callbacks import ModelCheckpoint
 from keras.callbacks import EarlyStopping
 import matplotlib.pyplot as plt
 from tensorflow.keras import backend as K
-import os
 
 
 #from keras.models import model_from_json
 
 # Каталог с данными для обучения
-train_dir = 'C:\\work1\\ATM_foto\\train'
+train_dir = 'C:\\work\\ATM_foto\\train'
 # Каталог с данными для проверки
-val_dir = 'C:\\work1\\ATM_foto\\val'
+val_dir = 'C:\\work\\ATM_foto\\val'
 # Каталог с данными для тестирования
-test_dir = 'C:\\work1\\ATM_foto\\test'
+test_dir = 'C:\\work\\ATM_foto\\test'
 # Размеры изображения
 img_width, img_height = 150, 150
 # Размерность тензора на основе изображения для входных данных в нейронную сеть
 # backend Tensorflow, channels_last
 input_shape = (img_width, img_height, 3)
 # Количество эпох
-epochs = 100
+epochs = 50
 # Размер мини-выборки
 batch_size = 32#16
-
 # Количество изображений для обучения
-nb_train_samples = len(os.listdir(train_dir+'\\atm'))
+nb_train_samples = 90019
 # Количество изображений для проверки
-nb_validation_samples = len(os.listdir(val_dir+'\\atm'))
+nb_validation_samples = 19290
 # Количество изображений для тестирования
-nb_test_samples = len(os.listdir(test_dir+'\\atm'))
+nb_test_samples = 19291
+
+def swish_activation(x):
+    return (K.sigmoid(x) * x)
 
 #Архитектура сети
 #Слой свертки, размер ядра 3х3, количество карт признаков - 32 шт., функция активации ReLU.
@@ -74,10 +75,7 @@ model.compile(loss='binary_crossentropy',
               optimizer='adamax', #adamax
               metrics=['accuracy'])
 
-train_datagen = ImageDataGenerator(rescale=1. / 255)
-val_datagen = ImageDataGenerator(rescale=1. / 255)
-test_datagen = ImageDataGenerator(rescale=1. / 255)
-
+train_datagen = ImageDataGenerator(rescale=1. / 255)#, 
 #    rotation_range=40, 
 #    width_shift_range=0.2, 
 #    height_shift_range=0.2,
@@ -86,6 +84,7 @@ test_datagen = ImageDataGenerator(rescale=1. / 255)
 #    horizontal_flip=True,
 #    fill_mode='nearest')
 
+test_datagen = ImageDataGenerator(rescale=1. / 255)
 
 print ("Генератор данных для обучения на основе изображений из каталога")
 train_generator = train_datagen.flow_from_directory(
@@ -95,7 +94,7 @@ train_generator = train_datagen.flow_from_directory(
     class_mode='binary')
 
 print ("Генератор данных для проверки на основе изображений из каталога")
-val_generator = val_datagen.flow_from_directory(
+val_generator = test_datagen.flow_from_directory(
     val_dir,
     target_size=(img_width, img_height),
     batch_size=batch_size,
@@ -119,8 +118,8 @@ test_generator = test_datagen.flow_from_directory(
 #print ("Загружаем веса модели из сохраненки",model_backup)
 #model.load_weights(model_backup)
 
-callbacks = [ModelCheckpoint('save_big_test\\ver1-{epoch:02d}-{val_accuracy:.4f}.hdf5', monitor='val_accuracy', save_best_only=True),
-		EarlyStopping(monitor="loss", patience=5)]
+callbacks = [ModelCheckpoint('save\\ver2_swish_gpu-{epoch:02d}-{val_accuracy:.4f}.hdf5', monitor='val_accuracy', save_best_only=False),
+		EarlyStopping(monitor="loss", patience=3)]
 
 print ("Обучаем модель с использованием генераторов")
 history = model.fit_generator(
@@ -131,10 +130,6 @@ history = model.fit_generator(
     validation_steps=nb_validation_samples // batch_size,
     callbacks=callbacks)
 
-scores = model.evaluate_generator(test_generator, nb_test_samples // batch_size)
-print("Аккуратность на тестовых данных: %.2f%%" % (scores[1]*100))
-
-
 plt.plot(history.history['accuracy'])
 plt.plot(history.history['val_accuracy'])
 plt.title('model accuracy')
@@ -143,4 +138,6 @@ plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
 plt.show()
 
-#Аккуратность на тестовых данных: 79.63%
+scores = model.evaluate_generator(test_generator, nb_test_samples // batch_size)
+print("Аккуратность на тестовых данных: %.2f%%" % (scores[1]*100))
+

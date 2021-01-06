@@ -2,19 +2,19 @@ import shutil
 import os
 
 # Каталог с набором данных
-data_dir = 'C:\\work1\\ATM_foto\\source'
+data_dir = 'D:\\work\\ATM_foto\\source'
 # Каталог с данными для обучения
-train_dir = 'C:\\work1\\ATM_foto\\train'
+train_dir = 'D:\\work\\ATM_foto\\train'
 # Каталог с данными для проверки
-val_dir = 'C:\\work1\\ATM_foto\\val'
+val_dir = 'D:\\work\\ATM_foto\\val'
 # Каталог с данными для тестирования
-test_dir = 'C:\\work1\\ATM_foto\\test'
+test_dir = 'D:\\work\\ATM_foto\\test'
 # Часть набора данных для тестирования
-test_data_portion = 0.10
+test_data_portion = 0.15
 # Часть набора данных для проверки
-val_data_portion = 0.20
+val_data_portion = 0.15
 # Количество элементов данных в одном классе
-nb_images = 74711
+nb_images = 128601
 
 #Функция создания каталога с двумя подкаталогами по названию классов: 
 def create_directory(dir_name):
