@@ -151,7 +151,7 @@ if __name__ == '__main__':
     while 1:
         date_now = datetime.datetime.now()
         print ('Сканирование фото в директории произойдет в {} часов- сейчас: {}\r'.format(timer_hour, datetime.datetime.now().isoformat()), end='')
-        if date_now.hour == timer_hour:
+        if date_now.hour == (timer_hour if not test_mode else date_now.hour):
             main()
             print('Сканирование директории завершено.')
         time.sleep(60*30)
