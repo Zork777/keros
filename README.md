@@ -6,3 +6,4 @@ keros learning find on image WORK
 
 <b>Accuracy 92%</b>
 Ссылка на модели https://drive.google.com/drive/folders/1UGWm5t1G1o2ISEHxURt6wGvIOZLPyt8V?usp=sharing
+<b>test_image_VGG19_v2.py</b>
