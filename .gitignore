@@ -7,3 +7,4 @@ list_image.csv
 *.h5
 test_directory\*.*
 test_directory/untitled_project.rar
+*.h5
