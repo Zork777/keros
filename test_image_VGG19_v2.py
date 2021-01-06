@@ -15,15 +15,23 @@ parser = argparse.ArgumentParser(description='Разделение фотогр�
                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('path', help='путь где лежат фотографии')
 parser.add_argument('--hour', type=int, default=7, help='во сколько часов сканировать папку с фотографиями')
+parser.add_argument('--test', help='тестовый режим, без перемещения файлов')
 args = parser.parse_args()
 
 #определяем переменные
 image_dir = vars(args)['path']
 timer_hour = vars(args)['hour']
+test_mode = vars(args)['test']
 img_width, img_height = 224, 224
 input_shape = (img_width, img_height, 3)
 image_dir_target_work = 'work_foto'
 image_dir_target_home = 'home_foto'
+
+
+if test_mode:
+    print ('*****test mode ON*****. Press ctrl^c for exit programm.')
+else:
+    print ('*****test mode OFF*****')
 
 
 class Work_file:
@@ -121,24 +129,28 @@ def main():
 
 
     #read file for prediction class work or family
-    #for _ in range(10):
     for i, file_name in enumerate(file_name_images):
-    #    file_name = file_name_images[np.random.randint(0, 9000, 1)[0]]
-        sg.one_line_progress_meter('progress meter', i+1, len(file_name_images), '-key-') #progress indicator
+        if test_mode:
+            file_name = file_name_images[np.random.randint(0, len(file_name_images), 1)[0]]
+        else:
+            sg.one_line_progress_meter('progress meter', i+1, len(file_name_images), '-key-') #progress indicator
+
         try:
             img = load_image(image_dir+'\\'+file_name)
         except Exception:
             print ('error load file for prediction-',file_name)
             continue
         result = model.predict(img)
-#        show_image(img, '{_a}'.format(_a = 'Work' if result[0][0] < 0.5 else 'Family'))
-        work_file.move_file(file_name, '{_a}'.format(_a = 'Work' if result[0][0] < 0.5 else 'Family'))
+        if test_mode:
+            show_image(img, '{_a}'.format(_a = 'Рабочее фото' if result[0][0] < 0.5 else 'Личное фото'))
+        else:
+            work_file.move_file(file_name, '{_a}'.format(_a = 'Work' if result[0][0] < 0.5 else 'Family'))
 
 
 if __name__ == '__main__':
     while 1:
         date_now = datetime.datetime.now()
         time.sleep(1)
-        print ('Сканирование фото в директории-{}\r'.format(datetime.datetime.now().isoformat()), end='')
+        print ('Сканирование фото в директории произойдет в {} часов- сейчас: {}\r'.format(timer_hour, datetime.datetime.now().isoformat()), end='')
         if date_now.hour == timer_hour:
             main()
