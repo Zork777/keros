@@ -7,6 +7,7 @@ from  tensorflow.python.keras.preprocessing.image import image
 from tensorflow import keras
 from keras.models import load_model
 import argparse
+from sort_foto import sort_foto
 import PySimpleGUI as sg
 
 
@@ -154,4 +155,7 @@ if __name__ == '__main__':
         if date_now.hour == (timer_hour if not test_mode else date_now.hour):
             main()
             print('Сканирование директории завершено.')
+            print('Старт сортировки фото')
+            sort_foto(image_dir+image_dir_target_home)
+            sort_foto(image_dir+image_dir_target_work)
         time.sleep(60*30)
