@@ -27,6 +27,7 @@ img_width, img_height = 224, 224
 input_shape = (img_width, img_height, 3)
 image_dir_target_work = 'work_foto'
 image_dir_target_home = 'home_foto'
+video_dir_target = 'video'
 
 
 if test_mode:
@@ -156,6 +157,7 @@ if __name__ == '__main__':
             main()
             print('Сканирование директории завершено.')
             print('Старт сортировки фото')
-            sort_foto(image_dir+image_dir_target_home)
-            sort_foto(image_dir+image_dir_target_work)
+            sort_foto(image_dir+"\\"+image_dir_target_home)
+            sort_foto(image_dir+"\\"+image_dir_target_work)
+            sort_foto(image_dir+"\\"+video_dir_target)
         time.sleep(60*30)
